@@ -1,0 +1,181 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RiTech · Monitor NASDAQ-100</title>
+<link rel="icon" href="/static/icono.svg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f7f8fa;--card:#fff;--tx:#0f172a;--mut:#64748b;--bd:#e5e7eb;--a:#1d4ed8;--up:#15803d;--dn:#b91c1c}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.5}
+.glass{background:var(--card);border:1px solid var(--bd);border-radius:14px}
+.up{color:var(--up)}.dn{color:var(--dn)}small,.mut{color:var(--mut)}
+nav{position:sticky;top:0;z-index:20;display:flex;gap:28px;align-items:center;padding:12px 32px;background:#ffffffeb;backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+.brand{margin-right:auto;display:flex}.brand img{height:30px}nav a{color:var(--mut);text-decoration:none;font-size:14px;font-weight:500}nav a:hover{color:var(--tx)}
+.hero{position:relative;min-height:520px;overflow:hidden;background:#fff;border-bottom:1px solid var(--bd)}
+#c3{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+.hl{position:relative;z-index:2;max-width:520px;padding:72px 32px;pointer-events:none}.hl .btn{pointer-events:auto}
+.pill{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:600}
+h1{font-size:clamp(40px,6vw,64px);line-height:1.04;margin:10px 0 14px;font-weight:700;letter-spacing:-.025em}
+.lead{color:#475569;font-size:17px}.kp{display:flex;align-items:flex-end;gap:14px;margin:24px 0}.big{font-size:40px;font-weight:700;letter-spacing:-.02em}
+.chip{padding:5px 11px;border-radius:99px;font-weight:600;font-size:13px;background:#f1f5f9}.chip.up{background:#dcfce7}.chip.dn{background:#fee2e2}
+.btn{display:inline-block;padding:10px 18px;border:0;border-radius:10px;color:#fff;cursor:pointer;font:500 14px inherit;font-family:inherit;text-decoration:none;background:var(--a);margin:4px 8px 4px 0}
+.btn.g{background:#fff;color:var(--tx);border:1px solid var(--bd)}
+.hint{position:absolute;right:24px;bottom:14px;z-index:2;font-size:12px;color:var(--mut)}
+.tip{position:absolute;z-index:3;pointer-events:none;padding:8px 12px;border-radius:10px;background:#fff;border:1px solid var(--bd);box-shadow:0 6px 20px #0f172a1a;font-size:12px;display:none}
+.mqw{overflow:hidden;border-bottom:1px solid var(--bd);background:#fff}.mq{display:flex;gap:40px;width:max-content;animation:mv 80s linear infinite;padding:11px 0}.mqw:hover .mq{animation-play-state:paused}@keyframes mv{to{transform:translateX(-50%)}}
+.tk{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;white-space:nowrap}.tk i{font-style:normal;font-weight:600}
+section.s{max-width:1180px;margin:auto;padding:56px 24px 8px}h2{font-size:26px;margin:0 0 4px;letter-spacing:-.015em}.sub{color:var(--mut);margin:0 0 20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.stat{padding:18px;display:flex;flex-direction:column;gap:6px}.stat b{font-size:28px}
+.tilt{transition:transform .15s ease,box-shadow .2s,border-color .2s}.tilt:hover{box-shadow:0 8px 24px #0f172a14;border-color:#cbd5e1}
+.lg{position:relative;width:38px;height:38px;border-radius:10px;background:#e2e8f0;color:#475569;display:inline-grid;place-items:center;flex:none;overflow:hidden;font-size:12px;font-weight:700}
+.lg img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;padding:5px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}input,select{padding:10px 12px;border-radius:10px;border:1px solid var(--bd);background:#fff;color:var(--tx);font:inherit}
+select option,select optgroup{color:#000}#q{flex:1;min-width:200px}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.cb{padding:7px 14px;border-radius:99px;border:1px solid var(--bd);background:#fff;color:var(--mut);cursor:pointer;font:inherit;font-size:13px}.cb.on{background:var(--tx);color:#fff;border-color:var(--tx)}
+#gr{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.co{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;padding:14px;cursor:pointer;align-items:center}.nm b{display:block;font-size:15px}.nm small{font-size:12px}
+.pr{grid-column:1/-1;font-size:22px;font-weight:700}.ch{grid-column:1/-1;display:flex;justify-content:space-between;font-size:12px}
+.sim{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:26px}@media(max-width:760px){.sim{grid-template-columns:1fr}}
+label{display:block;font-size:13px;color:var(--mut);margin:12px 0 4px;font-weight:500}.vf{font-size:40px;font-weight:700;letter-spacing:-.02em}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 6px;text-align:right;border-bottom:1px solid #f1f5f9}th:first-child,td:first-child{text-align:left}th{color:var(--mut);font-weight:500}
+.rv{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s}.rv.in{opacity:1;transform:none}
+dialog{width:min(760px,94vw);color:var(--tx);background:#fff;border:1px solid var(--bd);border-radius:16px}dialog::backdrop{background:#0f172a80}
+.dh{display:flex;align-items:center;justify-content:space-between;gap:10px}.dh h2{display:flex;align-items:center;gap:12px;font-size:22px}
+details{margin-top:14px}summary{cursor:pointer;color:var(--a);font-weight:500}.fr{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+footer{text-align:center;color:var(--mut);font-size:12px;padding:40px 20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.sc{max-height:340px;overflow:auto}@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.badge{display:inline-block;padding:6px 12px;border-radius:99px;font-weight:600;margin:8px 0}.badge.up{background:#dcfce7}.badge.dn{background:#fee2e2}.sel{display:flex;gap:10px;align-items:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<nav><a class="brand" href="#resumen"><img src="/static/logo.svg" alt="RiTech"></a><a href="#resumen">Resumen</a><a href="#empresas">Empresas</a><a href="#regla">Simulador</a><a href="#historia">Historia</a></nav>
+
+<header class="hero" id="resumen"><canvas id="c3"></canvas>
+<div class="hl"><span class="pill">Monitor de inversión</span><h1>NASDAQ-100</h1>
+<p class="lead" id="frase">Cargando…</p>
+<div class="kp"><div><small id="fd"></small><div class="big" id="kv">–</div></div><span id="kp" class="chip"></span></div>
+<a class="btn" href="#empresas">Ver empresas</a><a class="btn g" href="#regla">Simulador</a></div>
+<div class="tip" id="tip"></div><div class="hint">Cada barra es un día de cierre · arrastra para girar</div></header>
+<div class="mqw"><div class="mq" id="mq"></div></div>
+
+<section class="s rv"><h2>Resumen del día</h2><p class="sub">Cuántas empresas suben y cuántas bajan hoy.</p><div class="stats" id="st"></div></section>
+
+<section class="s rv" id="empresas"><h2>Empresas del índice</h2><p class="sub">Haz clic en una tarjeta para ver su gráfico del último año.</p>
+<div class="tools"><input id="q" placeholder="Buscar: Apple, NVDA, Tesla…" oninput="pintar()"><select id="ord" onchange="pintar()"><option value="n">A–Z</option><option value="d">Más suben hoy</option><option value="dd">Más bajan hoy</option><option value="a">Mejor último año</option></select></div>
+<div class="chips" id="chips"></div><div id="gr"></div><p class="mut" id="vac"></p></section>
+
+<section class="s rv" id="regla"><h2>Simulador de inversión por empresa</h2><p class="sub">Elige una empresa y un periodo y mira si con la regla de RiTech (sube → ×2, baja → ×1,25) habrías ganado o perdido.</p>
+<div class="glass sim"><div><label>Empresa</label><select id="re_emp" onchange="elegir()" style="width:100%"><option value="">Cargando empresas…</option></select><div class="sel mut" id="re_sel" style="margin-top:8px"></div>
+<label>¿Cuánto inviertes? (USD)</label><input id="re_monto" type="number" min="1" value="10000" style="width:100%">
+<label>Periodo</label><div class="chips" id="re_p"><button class="cb" data-p="hoy">Hoy</button><button class="cb" data-p="sem">1 semana</button><button class="cb" data-p="mes">1 mes</button><button class="cb" data-p="tri">3 meses</button><button class="cb" data-p="ytd">Este año</button><button class="cb" data-p="ant">Año anterior</button><button class="cb" data-p="custom">Personalizado</button></div>
+<div class="fr" id="re_c" style="display:none"><input id="re_d" type="date"><input id="re_h" type="date"></div>
+<div class="fr"><button class="btn" onclick="calcRegla()">Ver si gano con la regla</button></div><div class="dn" id="re_err" style="margin-top:8px"></div></div>
+<div id="re_res"><p class="mut">Aquí verás el resultado de tu inversión.</p></div></div>
+<div id="re_det" style="display:none;margin-top:14px"><div class="glass" style="padding:16px;height:300px"><canvas id="re_gc"></canvas></div>
+<div class="grid2" style="margin-top:14px"><div class="glass sc" style="padding:14px"><b>Mes a mes</b><table id="re_m"></table></div><div class="glass sc" style="padding:14px"><b>Día a día</b><table id="re_dd"></table></div></div></div>
+<div class="glass" style="margin-top:14px;padding:16px;overflow-x:auto"><b>Últimas simulaciones guardadas</b><table id="ts"></table></div></section>
+
+<section class="s rv" id="historia"><h2>Historia del índice</h2><p class="sub">Evolución del cierre del NASDAQ-100.</p>
+<div class="fr" style="margin:0 0 10px"><button class="cb" onclick="graf(22,this)">1 mes</button><button class="cb" onclick="graf(126,this)">6 meses</button><button class="cb on" onclick="graf(252,this)">1 año</button><button class="cb" onclick="graf(0,this)">Todo</button></div>
+<div class="glass" style="padding:16px;height:330px"><canvas id="gi"></canvas></div>
+<details><summary>Agregar un dato manual del índice</summary><div class="fr"><input id="nf" type="date"><input id="nv" type="number" step="0.01" placeholder="Valor de cierre"><button class="btn" onclick="agregar()">Guardar</button><span class="mut" id="nm"></span></div></details></section>
+
+<footer>Herramienta informativa; no sustituye el criterio de un profesional financiero · Datos: Yahoo Finance · RiTech SAS</footer>
+<dialog id="dg"><div class="dh"><h2 id="dt"></h2><button class="btn g" onclick="dg.close()">✕</button></div><p id="ds"></p><div style="height:280px"><canvas id="gc"></canvas></div></dialog>
+
+<script>
+const $=i=>document.getElementById(i),cl=v=>v>=0?'up':'dn',ar=v=>v>=0?'▲':'▼';
+const nf=(v,d=2)=>v.toLocaleString('es-CO',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pc=v=>v==null?'–':`${ar(v)} ${v>0?'+':''}${nf(v)} %`,usd=v=>'$'+nf(v);
+const S={'Information Technology':'Tecnología','Communication Services':'Comunicaciones','Consumer Discretionary':'Consumo discrecional','Consumer Staples':'Consumo básico','Health Care':'Salud','Industrials':'Industriales','Utilities':'Servicios públicos','Financials':'Finanzas','Energy':'Energía','Materials':'Materiales','Real Estate':'Inmobiliario'};
+const sp=s=>S[s]||s||'N/D',dg=$('dg');
+const js=(u,b)=>fetch(u,b?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}:{}).then(r=>r.json());
+const lg=t=>`<span class="lg"><b>${t.slice(0,2)}</b><img src="https://financialmodelingprep.com/image-stock/${t}.png" alt="" loading="lazy" onerror="this.remove()"></span>`;
+function count(el,to,d=2,ms=1100){const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms);el.textContent=nf(to*(1-Math.pow(1-k,3)),d);if(k<1)requestAnimationFrame(f)})(t0)}
+const ax={ticks:{color:'#64748b'},grid:{color:'rgba(15,23,42,.06)'}};
+function linea(cv,labels,data,c1){const x=cv.getContext('2d'),g=x.createLinearGradient(0,0,0,300);g.addColorStop(0,c1+'66');g.addColorStop(1,c1+'00');
+  return new Chart(x,{type:'line',data:{labels,datasets:[{data,borderColor:c1,backgroundColor:g,fill:true,pointRadius:0,tension:.25}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:ax,y:ax}}})}
+let H=[],E=[],chip='',hoy=0,rng=252,gi,cc;
+
+async function cargar(){
+  [H,E]=await Promise.all([js('/api/historico'),js('/api/empresas')]);
+  if(H.length){const u=H[H.length-1];hoy=u.variacion_pct||0;count($('kv'),u.valor);$('kp').className='chip '+cl(hoy);$('kp').textContent=pc(hoy)+' hoy';$('fd').textContent='Cierre del '+u.fecha;
+    const r=hoy>=0?hoy*2:hoy*1.25;$('frase').innerHTML=`Hoy el índice <b class="${cl(hoy)}">${hoy>=0?'subió':'bajó'} ${nf(Math.abs(hoy))} %</b>. Consulta cada empresa del índice o simula tu inversión con la regla de RiTech.`}
+  stats();chips();pintar();ticker();graf(rng);sims();llenar();try{escena(H.slice(-30))}catch(e){$('c3').style.display='none'}
+}
+function stats(){const d=E.filter(e=>e.var_dia!=null).sort((a,b)=>b.var_dia-a.var_dia);if(!d.length){$('st').innerHTML='<p class="mut">Carga las empresas con: python cargar_empresas.py --limpiar</p>';return}
+  const su=d.filter(e=>e.var_dia>=0).length,b=d[0],w=d[d.length-1];
+  $('st').innerHTML=[['Empresas que suben',su,'up'],['Empresas que bajan',d.length-su,'dn']].map(x=>`<div class="glass tilt stat"><small>${x[0]}</small><b class="${x[2]}" data-n="${x[1]}">0</b></div>`).join('')+
+   [['Mejor del día',b],['Peor del día',w]].map(x=>`<div class="glass tilt stat" data-t="${x[1].ticker}" style="cursor:pointer">${lg(x[1].ticker)}<small>${x[0]}</small><b style="font-size:18px">${x[1].nombre}</b><span class="${cl(x[1].var_dia)}">${pc(x[1].var_dia)}</span></div>`).join('');
+  document.querySelectorAll('[data-n]').forEach(e=>count(e,+e.dataset.n,0))}
+function ticker(){const L=E.filter(e=>e.var_dia!=null).sort((a,b)=>Math.abs(b.var_dia)-Math.abs(a.var_dia)).slice(0,24);
+  const h=L.map(e=>`<span class="tk" data-t="${e.ticker}">${lg(e.ticker)}<b>${e.ticker}</b>${usd(e.cierre)}<i class="${cl(e.var_dia)}">${pc(e.var_dia)}</i></span>`).join('');$('mq').innerHTML=h+h}
+function chips(){const ss=[...new Set(E.map(e=>e.sector))].sort();$('chips').innerHTML=['',...ss].map(s=>`<button class="cb ${s==chip?'on':''}" data-s="${s}">${s?sp(s):'Todos'}</button>`).join('')}
+function pintar(){const q=$('q').value.toLowerCase(),o=$('ord').value;let L=E.filter(e=>(!chip||e.sector==chip)&&(!q||(e.nombre+e.ticker).toLowerCase().includes(q)));
+  const k={d:(a,b)=>(b.var_dia??-1e9)-(a.var_dia??-1e9),dd:(a,b)=>(a.var_dia??1e9)-(b.var_dia??1e9),a:(a,b)=>(b.var_anio??-1e9)-(a.var_anio??-1e9)}[o];if(k)L.sort(k);
+  $('gr').innerHTML=L.map(e=>`<div class="glass tilt co" data-t="${e.ticker}">${lg(e.ticker)}<div class="nm"><b>${e.nombre}</b><small>${e.ticker} · ${sp(e.sector)}</small></div><div class="pr">${usd(e.cierre)}</div><div class="ch"><span class="${cl(e.var_dia||0)}">Hoy ${pc(e.var_dia)}</span><span class="${cl(e.var_anio||0)}">1 año ${pc(e.var_anio)}</span></div></div>`).join('');
+  $('vac').textContent=E.length?(L.length?'':'Ninguna empresa coincide.'):'Aún no hay empresas. Ejecuta: python cargar_empresas.py --limpiar'}
+async function det(t){const e=E.find(x=>x.ticker==t);if(!e)return;const h=await js('/api/empresa/'+t);
+  $('dt').innerHTML=lg(t)+`<span>${e.nombre}</span>`;$('ds').innerHTML=`${sp(e.sector)} · Precio ${usd(e.cierre)} · Hoy <b class="${cl(e.var_dia||0)}">${pc(e.var_dia)}</b> · 1 mes <b class="${cl(e.var_mes||0)}">${pc(e.var_mes)}</b> · 1 año <b class="${cl(e.var_anio||0)}">${pc(e.var_anio)}</b>`;
+  $('ds').innerHTML+=`<div style="margin-top:10px"><button class="btn" onclick="irRegla('${t}')">Simular inversión con la regla</button></div>`;dg.showModal();if(cc)cc.destroy();cc=linea($('gc'),h.map(r=>r.fecha),h.map(r=>r.cierre),'#15803d')}
+function graf(n,b){rng=n;if(b){document.querySelectorAll('#historia .cb').forEach(x=>x.classList.remove('on'));b.classList.add('on')}
+  const h=n?H.slice(-n):H;if(gi)gi.destroy();gi=linea($('gi'),h.map(r=>r.fecha),h.map(r=>r.valor),'#1d4ed8')}
+
+async function sims(){const s=await js('/api/simulaciones');$('ts').innerHTML='<tr><th>Fecha</th><th>Empresa</th><th>Monto</th><th>Cambio</th><th>Resultado</th></tr>'+s.slice(0,5).map(r=>`<tr><td>${r.creado_en}</td><td>${r.ticker}</td><td>${usd(r.monto)}</td><td>${pc(r.variacion_pct)}</td><td class="${cl(r.rendimiento_pct)}">${usd(r.valor_final)}</td></tr>`).join('')}
+async function agregar(){const d=await js('/api/indice',{fecha:$('nf').value,valor:$('nv').value});$('nm').textContent=d.error||'Guardado ✔';if(!d.error)cargar()}
+
+/* Inversión por empresa con la regla */
+let rc,per='mes';
+const iso=d=>d.toISOString().slice(0,10),rest=(f,n)=>{const d=new Date(f+'T12:00:00');d.setDate(d.getDate()-n);return iso(d)};
+const ult=()=>E.reduce((a,e)=>e.fecha>a?e.fecha:a,'0000-00-00'),mesN=m=>new Date(m+'-01T12:00:00').toLocaleDateString('es-CO',{month:'short',year:'numeric'});
+function llenar(){const g={};E.forEach(e=>(g[sp(e.sector)]=g[sp(e.sector)]||[]).push(e));
+  $('re_emp').innerHTML='<option value="">— Elige una empresa —</option>'+Object.keys(g).sort().map(k=>`<optgroup label="${k}">`+g[k].map(e=>`<option value="${e.ticker}">${e.nombre} (${e.ticker})</option>`).join('')+'</optgroup>').join('');
+  if(!E.length)$('re_sel').textContent='Aún no hay empresas cargadas. Ejecuta: python cargar_empresas.py'}
+function selE(){return E.find(x=>x.ticker==$('re_emp').value)}
+function elegir(){const e=selE();$('re_sel').innerHTML=e?`${lg(e.ticker)}<span><b>${e.nombre}</b> · ${usd(e.cierre)} · hoy <span class="${cl(e.var_dia||0)}">${pc(e.var_dia)}</span></span>`:''}
+function irRegla(t){dg.close();$('re_emp').value=t;elegir();$('regla').scrollIntoView({behavior:'smooth'})}
+function periodo(p,b){per=p;document.querySelectorAll('#re_p .cb').forEach(x=>x.classList.toggle('on',x===b));$('re_c').style.display=p=='custom'?'flex':'none'}
+function rangoP(){const h=ult(),y=h.slice(0,4);return{hoy:[h,h],sem:[rest(h,6),h],mes:[rest(h,30),h],tri:[rest(h,90),h],ytd:[y+'-01-01',h],ant:[(y-1)+'-01-01',(y-1)+'-12-31'],custom:[$('re_d').value,$('re_h').value]}[per]}
+async function calcRegla(){const e=selE();if(!e){$('re_err').textContent='Elige una empresa de la lista.';return}
+  const[d,h]=rangoP();if(!d||!h){$('re_err').textContent='Elige las dos fechas.';return}$('re_err').textContent='';
+  const r=await js('/api/regla',{ticker:e.ticker,monto:$('re_monto').value,desde:d,hasta:h});if(r.error){$('re_err').textContent=r.error;return}
+  const g=r.ganancia>=0;
+  $('re_res').innerHTML=`<div class="sel">${lg(r.ticker)}<span><b>${r.nombre}</b><br><small>${r.desde} → ${r.hasta}</small></span></div><small>Con la regla tu inversión valdría</small><div class="vf">${usd(r.valor_final)}</div>
+  <div class="badge ${g?'up':'dn'}">${g?'✔ Con la regla SÍ hay ganancia':'✖ Con la regla hay pérdida'}: ${g?'+':'−'}${usd(Math.abs(r.ganancia))}</div>
+  <table><tr><th>Escenario</th><th>Cambio</th><th>Valor final</th></tr><tr><td>Solo mantener la acción (${usd(r.precio_ini)} → ${usd(r.precio_fin)})</td><td class="${cl(r.variacion_pct)}">${pc(r.variacion_pct)}</td><td>${usd(r.sin_regla)}</td></tr>
+  <tr><td><b>Con la regla de RiTech</b></td><td class="${cl(r.rendimiento_pct)}">${pc(r.rendimiento_pct)}</td><td><b>${usd(r.valor_final)}</b></td></tr></table><p class="mut" style="font-size:13px">${r.recomendacion}</p>`;
+  $('re_det').style.display='block';if(rc)rc.destroy();rc=linea($('re_gc'),r.dias.map(x=>x.fecha),r.dias.map(x=>x.cierre),g?'#15803d':'#b91c1c');
+  $('re_m').innerHTML='<tr><th>Mes</th><th>Cierre</th><th>Cambio</th><th>Con regla</th></tr>'+r.meses.map(x=>`<tr><td>${mesN(x.mes)}</td><td>${usd(x.cierre)}</td><td class="${cl(x.var)}">${pc(x.var)}</td><td class="${cl(x.regla)}">${pc(x.regla)}</td></tr>`).join('');
+  $('re_dd').innerHTML='<tr><th>Fecha</th><th>Cierre</th><th>Cambio</th><th>Con regla</th></tr>'+r.dias.slice().reverse().map(x=>`<tr><td>${x.fecha}</td><td>${usd(x.cierre)}</td><td class="${cl(x.var||0)}">${pc(x.var)}</td><td class="${cl(x.regla||0)}">${pc(x.regla)}</td></tr>`).join('');sims()}
+
+/* Escena 3D: una barra por día del índice */
+let R;
+function escena(h){if(h.length<2)return;const cv=$('c3'),W=cv.clientWidth,Hh=cv.clientHeight;
+  R=R||new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(W,Hh,false);
+  if(window._on)window._on.on=false;const id=window._on={on:true};
+  const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(45,W/Hh,.1,100),wide=W>800;cam.position.set(0,6,wide?16:24);
+  sc.add(new THREE.AmbientLight(0xffffff,.9));const pl=new THREE.PointLight(0xffffff,.7);pl.position.set(8,14,10);sc.add(pl);
+  const g=new THREE.Group();g.position.x=wide?4:0;sc.add(g);
+  const v=h.map(x=>x.valor),mn=Math.min(...v),mx=Math.max(...v),bars=h.map((p,i)=>{const ht=1.2+(p.valor-mn)/(mx-mn||1)*7,up=(p.variacion_pct||0)>=0,c=up?0x16a34a:0xdc2626;
+    const geo=new THREE.BoxGeometry(.5,ht,.5);geo.translate(0,ht/2,0);const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.05,metalness:.1,roughness:.55}));
+    m.position.x=(i-h.length/2)*.62;m.userData=p;g.add(m);return m});
+  sc.add(new THREE.GridHelper(40,40,0xcbd5e1,0xe5e7eb));
+  
+  let yaw=0,drag=false,lx=0,mx2=0,hov=null;const ray=new THREE.Raycaster(),ms=new THREE.Vector2();
+  cv.onpointerdown=e=>{drag=true;lx=e.clientX;cv.style.cursor='grabbing'};window.addEventListener('pointerup',()=>{drag=false;cv.style.cursor='grab'});
+  cv.onpointermove=e=>{const r=cv.getBoundingClientRect();if(drag){yaw+=(e.clientX-lx)*.008;lx=e.clientX}
+    mx2=(e.clientX-r.left)/r.width-.5;ms.set(mx2*2,-((e.clientY-r.top)/r.height-.5)*2);ray.setFromCamera(ms,cam);const hit=ray.intersectObjects(bars)[0];hov=hit?hit.object:null;
+    const t=$('tip');if(hov){const p=hov.userData;t.style.display='block';t.style.left=(e.clientX-r.left+14)+'px';t.style.top=(e.clientY-r.top+14)+'px';t.innerHTML=`<b>${p.fecha}</b><br>${nf(p.valor)}<br><span class="${cl(p.variacion_pct||0)}">${pc(p.variacion_pct)}</span>`}else t.style.display='none'};
+  const t0=performance.now();(function f(){if(!id.on)return;requestAnimationFrame(f);const t=(performance.now()-t0)/1000;
+    g.rotation.y=yaw+Math.sin(t*.25)*.3;cam.position.x+=(mx2*3-cam.position.x)*.05;cam.lookAt(wide?1:0,2.5,0);
+    bars.forEach((m,i)=>{const k=Math.min(1,Math.max(0,(t-i*.03)/.8)),s=m===hov?1.4:1;m.scale.y=1-Math.pow(1-k,3);m.scale.x+=(s-m.scale.x)*.2;m.scale.z=m.scale.x});
+    R.render(sc,cam)})()}
+addEventListener('resize',()=>{if(H.length)try{escena(H.slice(-30))}catch(e){}});
+
+/* Interacciones globales: clics, inclinación 3D y aparición al hacer scroll */
+document.addEventListener('click',e=>{const c=e.target.closest('[data-t]');if(c)det(c.dataset.t);const s=e.target.closest('[data-s]');if(s){chip=s.dataset.s;chips();pintar()}const p=e.target.closest('[data-p]');if(p)periodo(p.dataset.p,p)});
+document.addEventListener('pointermove',e=>{const c=e.target.closest&&e.target.closest('.tilt');document.querySelectorAll('.tilt.on').forEach(x=>{if(x!==c){x.style.transform='';x.classList.remove('on')}});if(!c)return;
+  const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.classList.add('on');c.style.transform=`perspective(700px) rotateX(${-y*3}deg) rotateY(${x*3}deg)`});
+const io=new IntersectionObserver(l=>l.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{threshold:.08});document.querySelectorAll('.rv').forEach(x=>io.observe(x));
+periodo('mes',document.querySelector('[data-p=mes]'));cargar();
+</script></body></html>
